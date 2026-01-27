@@ -16,6 +16,7 @@ import (
 	"github.com/nexus-planet/nexus-planet-api/internal/config"
 	"github.com/nexus-planet/nexus-planet-api/internal/db"
 	"github.com/nexus-planet/nexus-planet-api/internal/routes"
+	"github.com/nexus-planet/nexus-planet-api/internal/user"
 )
 
 func main() {
@@ -48,8 +49,9 @@ func main() {
 	// api v1
 	r := routes.NewRouter("/v1")
 	q := db.New(conn)
-	repo := auth.NewRepository(q)
-	svc := auth.NewService(repo)
+	authRepo := auth.NewRepository(q)
+	userRepo := user.NewRepository(q)
+	svc := auth.NewService(authRepo, userRepo)
 	handler := auth.NewHandler(svc)
 
 	r.Route("/auth", func(r chi.Router) {

@@ -6,14 +6,16 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nexus-planet/nexus-planet-api/internal/db"
+	"github.com/nexus-planet/nexus-planet-api/internal/user"
 )
 
 type Service struct {
-	repo *Repository
+	auth *Repository
+	user *user.Repository
 }
 
-func NewService(repo *Repository) *Service {
-	return &Service{repo: repo}
+func NewService(auth *Repository, user *user.Repository) *Service {
+	return &Service{auth: auth, user: user}
 }
 
 func (s *Service) CreateUser(ctx context.Context, data Credentials) (*db.User, error) {
@@ -25,7 +27,7 @@ func (s *Service) CreateUser(ctx context.Context, data Credentials) (*db.User, e
 
 	id := uuid.New()
 
-	user, err := s.repo.CreateUser(ctx, &db.CreateUserParams{ID: id.String(), Email: data.Email, PasswordHash: hash})
+	user, err := s.user.CreateUser(ctx, &db.CreateUserParams{ID: id.String(), Email: data.Email, PasswordHash: hash})
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +36,7 @@ func (s *Service) CreateUser(ctx context.Context, data Credentials) (*db.User, e
 }
 
 func (s *Service) Login(ctx context.Context, data Credentials) (string, error) {
-	user, err := s.repo.FindOneByEmail(ctx, data.Email)
+	user, err := s.user.FindOneByEmail(ctx, data.Email)
 	if err != nil {
 		return "", err
 	}
