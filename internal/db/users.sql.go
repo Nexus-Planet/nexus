@@ -7,41 +7,62 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createUser = `-- name: CreateUser :exec
-INSERT INTO users(id,email,password_hash) VALUES($1,$2,$3)
+const cancelDeleteUser = `-- name: CancelDeleteUser :exec
+UPDATE users
+SET account_status = 'active',
+    deleted_at = NULL
+WHERE id = $1
 `
 
-type CreateUserParams struct {
-	ID           string
-	Email        string
-	PasswordHash string
+// Cancel Delete Account
+func (q *Queries) CancelDeleteUser(ctx context.Context, id string) error {
+	_, err := q.db.Exec(ctx, cancelDeleteUser, id)
+	return err
 }
 
+const createUser = `-- name: CreateUser :exec
+INSERT INTO users(id)
+VALUES($1)
+`
+
 // Create User
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
-	_, err := q.db.Exec(ctx, createUser, arg.ID, arg.Email, arg.PasswordHash)
+func (q *Queries) CreateUser(ctx context.Context, id string) error {
+	_, err := q.db.Exec(ctx, createUser, id)
+	return err
+}
+
+const deactivateUser = `-- name: DeactivateUser :exec
+UPDATE users
+SET account_status = 'deactivated'
+WHERE id = $1
+`
+
+// Deactivate User Account
+func (q *Queries) DeactivateUser(ctx context.Context, id string) error {
+	_, err := q.db.Exec(ctx, deactivateUser, id)
 	return err
 }
 
 const deleteUser = `-- name: DeleteUser :exec
-
-
-
-DELETE FROM users WHERE id = $1
+DELETE FROM users
+WHERE deleted_at IS NOT NULL
+    AND deleted_after <= $1
 `
 
-// Update User Date
-// Update Profile Picture
 // Delete User Account
-func (q *Queries) DeleteUser(ctx context.Context, id string) error {
-	_, err := q.db.Exec(ctx, deleteUser, id)
+func (q *Queries) DeleteUser(ctx context.Context, deletedAfter pgtype.Int4) error {
+	_, err := q.db.Exec(ctx, deleteUser, deletedAfter)
 	return err
 }
 
 const findAllUsers = `-- name: FindAllUsers :many
-SELECT id, email, username, password_hash, created_at, updated_at FROM users ORDER BY created_at DESC
+SELECT id, username, display_name, account_status, username_changed_at, created_at, updated_at, deleted_at, deleted_after
+FROM users
+ORDER BY created_at DESC
 `
 
 // Get All Users With Data
@@ -56,11 +77,14 @@ func (q *Queries) FindAllUsers(ctx context.Context) ([]User, error) {
 		var i User
 		if err := rows.Scan(
 			&i.ID,
-			&i.Email,
 			&i.Username,
-			&i.PasswordHash,
+			&i.DisplayName,
+			&i.AccountStatus,
+			&i.UsernameChangedAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.DeletedAfter,
 		); err != nil {
 			return nil, err
 		}
@@ -73,7 +97,9 @@ func (q *Queries) FindAllUsers(ctx context.Context) ([]User, error) {
 }
 
 const findOneUser = `-- name: FindOneUser :one
-SELECT id, email, username, password_hash, created_at, updated_at FROM users WHERE id = $1
+SELECT id, username, display_name, account_status, username_changed_at, created_at, updated_at, deleted_at, deleted_after
+FROM users
+WHERE id = $1
 `
 
 // Get User Data
@@ -82,30 +108,81 @@ func (q *Queries) FindOneUser(ctx context.Context, id string) (User, error) {
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Email,
 		&i.Username,
-		&i.PasswordHash,
+		&i.DisplayName,
+		&i.AccountStatus,
+		&i.UsernameChangedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.DeletedAfter,
 	)
 	return i, err
 }
 
-const findOneUserByEmail = `-- name: FindOneUserByEmail :one
-SELECT id, email, username, password_hash, created_at, updated_at FROM users WHERE email = $1
+const reactivateUser = `-- name: ReactivateUser :exec
+UPDATE Users
+SET account_status = 'active'
+WHERE id = $1
 `
 
-// Get User Data By Email
-func (q *Queries) FindOneUserByEmail(ctx context.Context, email string) (User, error) {
-	row := q.db.QueryRow(ctx, findOneUserByEmail, email)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Email,
-		&i.Username,
-		&i.PasswordHash,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+// Reactivate User Account
+func (q *Queries) ReactivateUser(ctx context.Context, id string) error {
+	_, err := q.db.Exec(ctx, reactivateUser, id)
+	return err
+}
+
+const setUserName = `-- name: SetUserName :exec
+UPDATE users
+SET username = COALESCE($2, username),
+    updated_at = COALESCE(CURRENT_TIMESTAMP, updated_at)
+WHERE id = $1
+    AND (
+        username IS NULL
+        OR username_changed_at IS NULL
+        OR username_changed_at <= $3
+    )
+`
+
+type SetUserNameParams struct {
+	ID                string
+	Username          pgtype.Text
+	UsernameChangedAt interface{}
+}
+
+// Set Username
+func (q *Queries) SetUserName(ctx context.Context, arg SetUserNameParams) error {
+	_, err := q.db.Exec(ctx, setUserName, arg.ID, arg.Username, arg.UsernameChangedAt)
+	return err
+}
+
+const softDeleteUser = `-- name: SoftDeleteUser :exec
+UPDATE users
+SET status = 'pending_delete',
+    deleted_at = CURRENT_TIMESTAMP
+WHERE id = $1
+`
+
+// Soft Delete User Account
+func (q *Queries) SoftDeleteUser(ctx context.Context, id string) error {
+	_, err := q.db.Exec(ctx, softDeleteUser, id)
+	return err
+}
+
+const updateUser = `-- name: UpdateUser :exec
+UPDATE users
+SET display_name = COALESCE($2, display_name),
+    updated_at = COALESCE(CURRENT_TIMESTAMP, updated_at)
+WHERE id = $1
+`
+
+type UpdateUserParams struct {
+	ID          string
+	DisplayName pgtype.Text
+}
+
+// Update User Date
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
+	_, err := q.db.Exec(ctx, updateUser, arg.ID, arg.DisplayName)
+	return err
 }

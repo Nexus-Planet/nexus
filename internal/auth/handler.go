@@ -1,8 +1,10 @@
 package auth
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/nexus-planet/nexus-planet-api/internal/api"
 )
@@ -17,9 +19,12 @@ func NewHandler(svc *Service) *Handler {
 
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var c Credentials
-	api.DecodeJSON(w, r, "", &c)
+	err := json.NewDecoder(r.Body).Decode(&c)
+	if err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+	}
 
-	user, err := h.svc.CreateUser(r.Context(), c)
+	user, err := h.svc.CreateSession(r.Context(), c)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
@@ -40,12 +45,18 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.svc.Login(r.Context(), c)
+	token := r.Header.Get("Authorization")
+	token = strings.TrimPrefix(token, "Bearer ")
+	token = strings.TrimSpace(token)
+
+	ctx := context.WithValue(r.Context(), TokenKey, token)
+
+	respToken, err := h.svc.Login(ctx, c)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 	}
 
-	api.JSON(w, http.StatusOK, token)
+	api.JSON(w, http.StatusOK, respToken)
 }
 
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {

@@ -8,6 +8,16 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type AuthSession struct {
+	ID           string
+	UserID       string
+	Email        string
+	PasswordHash string
+	IsActive     pgtype.Int4
+	CreatedAt    interface{}
+	UpdatedAt    interface{}
+}
+
 type Guild struct {
 	ID         string
 	GuildName  string
@@ -20,17 +30,20 @@ type Message struct {
 }
 
 type User struct {
-	ID           string
-	Email        string
-	Username     pgtype.Text
-	PasswordHash string
-	CreatedAt    pgtype.Timestamp
-	UpdatedAt    pgtype.Timestamp
+	ID                string
+	Username          pgtype.Text
+	DisplayName       pgtype.Text
+	AccountStatus     string
+	UsernameChangedAt interface{}
+	CreatedAt         interface{}
+	UpdatedAt         interface{}
+	DeletedAt         interface{}
+	DeletedAfter      pgtype.Int4
 }
 
 type UserGuild struct {
 	UserID   string
 	GuildID  string
 	Role     pgtype.Text
-	JoinedAt pgtype.Timestamp
+	JoinedAt interface{}
 }

@@ -28,24 +28,6 @@ func (r *Repository) CreateUser(ctx context.Context, data *db.CreateUserParams) 
 	return &user, nil
 }
 
-func (r *Repository) FindOne(ctx context.Context, id string) (*db.User, error) {
-	user, err := r.q.FindOneUser(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	return &user, nil
-}
-
-func (r *Repository) FindOneByEmail(ctx context.Context, email string) (*db.User, error) {
-	user, err := r.q.FindOneUserByEmail(ctx, email)
-	if err != nil {
-		return nil, err
-	}
-
-	return &user, nil
-}
-
 func (r *Repository) FindAll(ctx context.Context) ([]db.User, error) {
 	users, err := r.q.FindAllUsers(ctx)
 	if err != nil {
