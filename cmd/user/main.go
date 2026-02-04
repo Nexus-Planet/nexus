@@ -4,8 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log"
-	"net/http"
 	"os"
 
 	"github.com/go-chi/chi/v5"
@@ -15,9 +13,11 @@ import (
 	"github.com/nexus-planet/nexus-planet-api/internal/config"
 	"github.com/nexus-planet/nexus-planet-api/internal/db"
 	"github.com/nexus-planet/nexus-planet-api/internal/routes"
+	"github.com/nexus-planet/nexus-planet-api/internal/user"
 )
 
 func main() {
+
 	ctx := context.Background()
 
 	flag.IntVar(&config.CustomServerPort, "p", 0, "Changes the default port for server")
@@ -45,41 +45,19 @@ func main() {
 	}
 	defer conn.Close(ctx)
 
-	// api v1
 	r := routes.NewRouter("/v1")
 	q := db.New(conn)
-	repo := auth.NewRepository(q)
-	svc := auth.NewService(repo)
-	handler := auth.NewHandler(svc)
-
-	r.Route("/auth", func(r chi.Router) {
+	repo := user.NewRepository(q)
+	svc := user.NewService(repo)
+	handler := user.NewHandler(svc)
+	r.Route("/users", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(jwtauth.Verifier(auth.JwtToken))
 			r.Use(jwtauth.Authenticator(auth.JwtToken))
 
-			r.Post("/login", handler.Login)
-		})
-
-		r.Group(func(r chi.Router) {
-			r.Post("/signup", handler.SignUp)
-			r.Post("/login", handler.Login)
-			r.Post("/logout", handler.Logout)
+			r.Post("", handler.CreateUser)
+			r.Get("/{id}", handler.FindOneUser)
+			r.Get("", handler.FindAllUsers)
 		})
 	})
-
-	// possible v2 ??
-
-	if config.CustomServerPort == 0 {
-		fmt.Printf("Server listening on port %d...\n", config.ServerPort)
-		err = http.ListenAndServe(fmt.Sprintf(":%d", config.ServerPort), r)
-		if err != nil {
-			log.Fatalf("ERROR:server failed to start %v\n", err)
-		}
-	} else {
-		fmt.Printf("Server listening on port %d...\n", config.CustomServerPort)
-		err = http.ListenAndServe(fmt.Sprintf(":%d", config.CustomServerPort), r)
-		if err != nil {
-			log.Fatalf("ERROR:server failed to start %v\n", err)
-		}
-	}
 }

@@ -16,13 +16,13 @@ ORDER BY created_at DESC;
 -- name: UpdateUser :exec
 UPDATE users
 SET display_name = COALESCE($2, display_name),
-    updated_at = COALESCE(CURRENT_TIMESTAMP, updated_at)
+    updated_at = CURRENT_TIMESTAMP
 WHERE id = $1;
 -- Set Username
 -- name: SetUserName :exec
 UPDATE users
-SET username = COALESCE($2, username),
-    updated_at = COALESCE(CURRENT_TIMESTAMP, updated_at)
+SET username = $2,
+    updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
     AND (
         username IS NULL

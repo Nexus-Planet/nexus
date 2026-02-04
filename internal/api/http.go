@@ -25,20 +25,3 @@ func Text(w http.ResponseWriter, status int, s string) error {
 	}
 	return nil
 }
-
-func DecodeJSON(w http.ResponseWriter, r *http.Request, message string, data any) error {
-	if message == "" {
-		err := json.NewDecoder(r.Body).Decode(data)
-		if err != nil {
-			http.Error(w, "Invalid JSON", http.StatusBadRequest)
-			return err
-		}
-	}
-
-	err := json.NewDecoder(r.Body).Decode(data)
-	if err != nil {
-		http.Error(w, message, http.StatusBadRequest)
-		return err
-	}
-	return nil
-}
