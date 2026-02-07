@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
@@ -15,11 +16,12 @@ import (
 )
 
 func main() {
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
 
-	config.LoadArgs()
+	cfg := config.Load()
 
-	db, err := db.Connect(ctx, db.Postgres)
+	db, err := db.ConnectContext(ctx, db.Postgres, cfg.DataSourceName)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR:%v", err)
 	}
@@ -47,5 +49,6 @@ func main() {
 
 	// possible v2 ??
 
-	api.StartServer(r)
+	server := api.NewServer(&cfg)
+	server.StartServer(r)
 }

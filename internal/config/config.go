@@ -16,6 +16,38 @@ var (
 	CustomServerPort       = 0
 )
 
+type Config struct {
+	ServerPort     int
+	DataSourceName string
+	ServerTimeout  time.Duration
+}
+
+// Loads the configurations
+func Load() Config {
+	LoadArgs()
+
+	var dsn string
+	var port int
+
+	if CustomDataSourceName == "" {
+		dsn = DataSourceName
+	} else {
+		dsn = CustomDataSourceName
+	}
+
+	if CustomServerPort == 0 {
+		port = ServerPort
+	} else {
+		port = CustomServerPort
+	}
+
+	return Config{
+		ServerPort:     port,
+		DataSourceName: dsn,
+		ServerTimeout:  ServerTimeout,
+	}
+}
+
 // Loads the command line arguements
 func LoadArgs() {
 	flag.IntVarP(&CustomServerPort, "port", "p", 0, "Changes the default port for server")
