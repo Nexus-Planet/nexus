@@ -4,20 +4,24 @@ import (
 	"os"
 	"time"
 
+	"github.com/nexus-planet/nexus-planet-api/internal/db"
 	flag "github.com/spf13/pflag"
 )
 
 var (
 	ServerTimeout          = 60 * time.Second
 	JwtTokenExpirationDate = 7 * 24 * time.Hour
-	DataSourceName         = os.Getenv("DATABASE_URL")
 	ServerPort             = 3000
+	DefaultDatabase        = db.Postgres
+	DataSourceName         = os.Getenv("DATA_SOURCE_NAME")
 	CustomDataSourceName   = ""
 	CustomServerPort       = 0
+	CustomDatabase         = ""
 )
 
 type Config struct {
 	ServerPort     int
+	Database       string
 	DataSourceName string
 	ServerTimeout  time.Duration
 }
@@ -26,6 +30,7 @@ type Config struct {
 func Load() Config {
 	LoadArgs()
 
+	var database string
 	var dsn string
 	var port int
 
@@ -41,8 +46,15 @@ func Load() Config {
 		port = CustomServerPort
 	}
 
+	if CustomDatabase == "" {
+		database = DefaultDatabase
+	} else {
+		database = CustomDatabase
+	}
+
 	return Config{
 		ServerPort:     port,
+		Database:       database,
 		DataSourceName: dsn,
 		ServerTimeout:  ServerTimeout,
 	}
@@ -51,11 +63,13 @@ func Load() Config {
 // Loads the command line arguements
 func LoadArgs() {
 	flag.IntVarP(&CustomServerPort, "port", "p", 0, "Changes the default port for server")
-	flag.StringVarP(&CustomDataSourceName, "database-url", "du", "", "Changes the default database url")
-	flag.Bool("default", false, "Use default options from environment variables of system\ni.e:\nDATABASE_URL=<url>\nJWT_SECRET=<secret>")
+	flag.StringVarP(&CustomDatabase, "database", "b", "", "Changes the default database")
+	flag.StringVar(&CustomDataSourceName, "dsn", "", "Changes the default database data source name")
+	flag.BoolP("default", "d", false, "Use default options from environment variables of system i.e:\nDATA_SOURCE_NAME=<dsn>\nJWT_SECRET=<secret>")
 	flag.Parse()
 	if len(os.Args) < 2 {
 		flag.Usage()
+		os.Exit(0)
 		return
 	}
 

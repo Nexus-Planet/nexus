@@ -25,7 +25,7 @@ func main() {
 
 	db, err := db.ConnectContext(ctx, db.Postgres, cfg.DataSourceName)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR:%v", err)
+		fmt.Fprintf(os.Stderr, "ERROR:%v\n", err)
 	}
 
 	// api v1
