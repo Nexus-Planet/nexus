@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
+	"github.com/fatih/color"
 	"github.com/go-chi/chi/v5"
 	"github.com/nexus-planet/nexus-planet-api/internal/config"
 )
@@ -21,7 +23,7 @@ func NewServer(cfg *config.Config) *Server {
 
 func (s *Server) StartServer(r chi.Router) {
 	chi.Walk(r, func(method, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
-		fmt.Printf("[%s] %s %d", method, route, len(middlewares))
+		fmt.Printf("%s%s%s %s %s\n", color.HiGreenString("["), color.GreenString(method), color.HiGreenString("]"), color.CyanString(route), color.BlueString(strconv.Itoa(len(middlewares))))
 		return nil
 	})
 
