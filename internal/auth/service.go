@@ -5,18 +5,17 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/nexus-planet/nexus-planet-api/internal/db"
 )
 
 type Service struct {
-	r *Repository
+	repo *Repository
 }
 
-func NewService(r *Repository) *Service {
-	return &Service{r: r}
+func NewService(repo *Repository) *Service {
+	return &Service{repo: repo}
 }
 
-func (svc *Service) CreateSession(ctx context.Context, data Credentials) (*db.AuthSession, error) {
+func (svc *Service) CreateSession(ctx context.Context, data Credentials) (*AuthSession, error) {
 
 	hash, err := HashPassword(data.Password)
 	if err != nil {
@@ -25,16 +24,16 @@ func (svc *Service) CreateSession(ctx context.Context, data Credentials) (*db.Au
 
 	id := uuid.New()
 
-	session, err := svc.r.CreateSession(ctx, &db.CreateSessionParams{ID: id.String(), Email: data.Email, PasswordHash: hash})
+	session, err := svc.repo.CreateSession(ctx, &CreateSessionParams{ID: id.String(), Email: data.Email, PasswordHash: hash})
 	if err != nil {
 		return nil, err
 	}
 
-	return session, nil
+	return session.ToAuthSession(), nil
 }
 
 func (svc *Service) Login(ctx context.Context, data Credentials) (string, error) {
-	session, err := svc.r.FindOneByEmail(ctx, data.Email)
+	session, err := svc.repo.FindOneByEmail(ctx, data.Email)
 	if err != nil {
 		return "", err
 	}

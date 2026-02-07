@@ -2,17 +2,17 @@
 -- name: CreateSession :exec
 INSERT INTO auth_sessions(id, email, password_hash)
 VALUES($1, $2, $3);
--- Get User Data
+-- Get Session Data
 -- name: FindOneSession :one
 SELECT *
 FROM auth_sessions
 WHERE id = $1;
--- Get User Data By Email
+-- Get Session Data By Email
 -- name: FindOneSessionByEmail :one
 SELECT *
 FROM auth_sessions
 WHERE email = $1;
--- Get All Users With Data
+-- Get All Sessions With Data
 -- name: FindAllSessions :many
 SELECT *
 FROM auth_sessions

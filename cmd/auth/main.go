@@ -2,15 +2,12 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
-	"log"
-	"net/http"
 	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
-	"github.com/jackc/pgx/v5"
+	"github.com/nexus-planet/nexus-planet-api/internal/api"
 	"github.com/nexus-planet/nexus-planet-api/internal/auth"
 	"github.com/nexus-planet/nexus-planet-api/internal/config"
 	"github.com/nexus-planet/nexus-planet-api/internal/db"
@@ -20,35 +17,16 @@ import (
 func main() {
 	ctx := context.Background()
 
-	flag.IntVar(&config.CustomServerPort, "p", 0, "Changes the default port for server")
-	flag.StringVar(&config.CustomDatabaseUrl, "du", "", "Changes the default database url")
-	flag.String("default", "", "Use default options from environment variables of system\ni.e:\nDATABASE_URL=<url>\nJWT_SECRET=<secret>")
-	flag.Parse()
-	if len(os.Args) < 2 {
-		flag.Usage()
-		return
-	}
+	config.LoadArgs()
 
-	var err error
-	var conn *pgx.Conn
-
-	if config.CustomDatabaseUrl == "" {
-		conn, err = pgx.Connect(ctx, config.DatabaseUrl)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "ERROR:Unable to connect to database %v\n", err)
-		}
-	} else {
-		conn, err = pgx.Connect(ctx, config.CustomDatabaseUrl)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "ERROR:Unable to connect to database %v\n", err)
-		}
+	db, err := db.Connect(ctx, db.Postgres)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR:%v", err)
 	}
-	defer conn.Close(ctx)
 
 	// api v1
 	r := routes.NewRouter("/v1")
-	q := db.New(conn)
-	repo := auth.NewRepository(q)
+	repo := auth.NewRepository(db)
 	svc := auth.NewService(repo)
 	handler := auth.NewHandler(svc)
 
@@ -69,17 +47,5 @@ func main() {
 
 	// possible v2 ??
 
-	if config.CustomServerPort == 0 {
-		fmt.Printf("Server listening on port %d...\n", config.ServerPort)
-		err = http.ListenAndServe(fmt.Sprintf(":%d", config.ServerPort), r)
-		if err != nil {
-			log.Fatalf("ERROR:server failed to start %v\n", err)
-		}
-	} else {
-		fmt.Printf("Server listening on port %d...\n", config.CustomServerPort)
-		err = http.ListenAndServe(fmt.Sprintf(":%d", config.CustomServerPort), r)
-		if err != nil {
-			log.Fatalf("ERROR:server failed to start %v\n", err)
-		}
-	}
+	api.StartServer(r)
 }

@@ -2,10 +2,10 @@ package auth
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"strings"
 
+	"github.com/bytedance/sonic"
 	"github.com/nexus-planet/nexus-planet-api/internal/api"
 )
 
@@ -19,7 +19,7 @@ func NewHandler(svc *Service) *Handler {
 
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var c Credentials
-	err := json.NewDecoder(r.Body).Decode(&c)
+	err := sonic.ConfigDefault.NewDecoder(r.Body).Decode(&c)
 	if err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 	}
@@ -34,7 +34,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var c Credentials
-	err := json.NewDecoder(r.Body).Decode(&c)
+	err := sonic.ConfigDefault.NewDecoder(r.Body).Decode(&c)
 	if err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return

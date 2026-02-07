@@ -11,8 +11,8 @@ CREATE TABLE auth_sessions(
 -- Users table
 CREATE TABLE users (
   id VARCHAR(36) PRIMARY KEY,
-  username VARCHAR(50) NULL UNIQUE,
-  display_name VARCHAR(255) NULL,
+  username VARCHAR(50) UNIQUE,
+  display_name VARCHAR(255),
   account_status VARCHAR(20) NOT NULL DEFAULT 'active',
   username_changed_at DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
