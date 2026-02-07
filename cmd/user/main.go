@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
-	"github.com/jackc/pgx/v5"
+	"github.com/nexus-planet/nexus-planet-api/internal/api"
 	"github.com/nexus-planet/nexus-planet-api/internal/auth"
 	"github.com/nexus-planet/nexus-planet-api/internal/config"
 	"github.com/nexus-planet/nexus-planet-api/internal/db"
@@ -18,36 +18,19 @@ import (
 
 func main() {
 
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
 
-	flag.IntVar(&config.CustomServerPort, "p", 0, "Changes the default port for server")
-	flag.StringVar(&config.CustomDatabaseUrl, "du", "", "Changes the default database url")
-	flag.String("default", "", "Use default options from environment variables of system\ni.e:\nDATABASE_URL=<url>\nJWT_SECRET=<secret>")
-	flag.Parse()
-	if len(os.Args) < 2 {
-		flag.Usage()
-		return
+	cfg := config.Load()
+
+	db, err := db.ConnectContext(ctx, db.Postgres, cfg.DataSourceName)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR:%v", err)
 	}
 
-	var err error
-	var conn *pgx.Conn
-
-	if config.CustomDatabaseUrl == "" {
-		conn, err = pgx.Connect(ctx, config.DatabaseUrl)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "ERROR:Unable to connect to database %v\n", err)
-		}
-	} else {
-		conn, err = pgx.Connect(ctx, config.CustomDatabaseUrl)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "ERROR:Unable to connect to database %v\n", err)
-		}
-	}
-	defer conn.Close(ctx)
-
+	// api v1
 	r := routes.NewRouter("/v1")
-	q := db.New(conn)
-	repo := user.NewRepository(q)
+	repo := user.NewRepository(db)
 	svc := user.NewService(repo)
 	handler := user.NewHandler(svc)
 	r.Route("/users", func(r chi.Router) {
@@ -60,4 +43,7 @@ func main() {
 			r.Get("", handler.FindAllUsers)
 		})
 	})
+
+	server := api.NewServer(&cfg)
+	server.StartServer(r)
 }

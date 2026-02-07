@@ -1,9 +1,9 @@
 package user
 
 import (
-	"encoding/json"
 	"net/http"
 
+	"github.com/bytedance/sonic"
 	"github.com/go-chi/chi/v5"
 	"github.com/nexus-planet/nexus-planet-api/internal/api"
 )
@@ -18,7 +18,7 @@ func NewHandler(svc *Service) *Handler {
 
 func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var c UserCredentials
-	err := json.NewDecoder(r.Body).Decode(&c)
+	err := sonic.ConfigDefault.NewDecoder(r.Body).Decode(&c)
 	if err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 	}
@@ -50,10 +50,14 @@ func (h *Handler) FindAllUsers(w http.ResponseWriter, r *http.Request) {
 	api.JSON(w, http.StatusOK, users)
 }
 
-func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) SoftDeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
 func (h *Handler) DeactivateUser(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) ReactivateUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
