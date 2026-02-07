@@ -12,7 +12,6 @@ import (
 	"github.com/nexus-planet/nexus-planet-api/internal/auth"
 	"github.com/nexus-planet/nexus-planet-api/internal/config"
 	"github.com/nexus-planet/nexus-planet-api/internal/db"
-	"github.com/nexus-planet/nexus-planet-api/internal/routes"
 )
 
 func main() {
@@ -27,10 +26,20 @@ func main() {
 	}
 
 	// api v1
-	r := routes.NewRouter("/v1")
+	r := chi.NewRouter()
 	repo := auth.NewRepository(db)
 	svc := auth.NewService(repo)
 	handler := auth.NewHandler(svc)
+	r.Mount("/api/v1", AuthRoutes(handler))
+
+	// possible v2 ??
+
+	server := api.NewServer(&cfg)
+	server.StartServer(r)
+}
+
+func AuthRoutes(handler *auth.Handler) *chi.Mux {
+	r := chi.NewRouter()
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
@@ -46,9 +55,5 @@ func main() {
 			r.Post("/logout", handler.Logout)
 		})
 	})
-
-	// possible v2 ??
-
-	server := api.NewServer(&cfg)
-	server.StartServer(r)
+	return r
 }

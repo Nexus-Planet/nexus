@@ -1,18 +1,27 @@
 package routes
 
 import (
-	"fmt"
-
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/jwtauth/v5"
+	"github.com/nexus-planet/nexus-planet-api/internal/auth"
 )
 
-func NewRouter(pattern string) chi.Router {
+func V1Router(handler *auth.Handler) *chi.Mux {
 	r := chi.NewRouter()
 
-	if pattern == "" {
+	r.Route("/auth", func(r chi.Router) {
+		r.Group(func(r chi.Router) {
+			r.Use(jwtauth.Verifier(auth.JwtToken))
+			r.Use(jwtauth.Authenticator(auth.JwtToken))
 
-		return r.Route("/api", func(r chi.Router) {})
-	}
-	return r.Route(fmt.Sprintf("/api%s", pattern), func(r chi.Router) {})
+			r.Post("/login", handler.Login)
+		})
 
+		r.Group(func(r chi.Router) {
+			r.Post("/signup", handler.SignUp)
+			r.Post("/login", handler.Login)
+			r.Post("/logout", handler.Logout)
+		})
+	})
+	return r
 }

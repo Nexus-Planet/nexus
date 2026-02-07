@@ -12,7 +12,6 @@ import (
 	"github.com/nexus-planet/nexus-planet-api/internal/auth"
 	"github.com/nexus-planet/nexus-planet-api/internal/config"
 	"github.com/nexus-planet/nexus-planet-api/internal/db"
-	"github.com/nexus-planet/nexus-planet-api/internal/routes"
 	"github.com/nexus-planet/nexus-planet-api/internal/user"
 )
 
@@ -29,10 +28,19 @@ func main() {
 	}
 
 	// api v1
-	r := routes.NewRouter("/v1")
+	r := chi.NewRouter()
 	repo := user.NewRepository(db)
 	svc := user.NewService(repo)
 	handler := user.NewHandler(svc)
+	r.Mount("/api/v1", UserRoutes(handler))
+
+	server := api.NewServer(&cfg)
+	server.StartServer(r)
+}
+
+func UserRoutes(handler *user.Handler) *chi.Mux {
+	r := chi.NewRouter()
+
 	r.Route("/users", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(jwtauth.Verifier(auth.JwtToken))
@@ -43,7 +51,5 @@ func main() {
 			r.Get("", handler.FindAllUsers)
 		})
 	})
-
-	server := api.NewServer(&cfg)
-	server.StartServer(r)
+	return r
 }
