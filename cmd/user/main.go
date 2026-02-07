@@ -46,9 +46,9 @@ func UserRoutes(handler *user.Handler) *chi.Mux {
 			r.Use(jwtauth.Verifier(auth.JwtToken))
 			r.Use(jwtauth.Authenticator(auth.JwtToken))
 
-			r.Post("", handler.CreateUser)
+			r.Post("/", handler.CreateUser)
 			r.Get("/{id}", handler.FindOneUser)
-			r.Get("", handler.FindAllUsers)
+			r.Get("/", handler.FindAllUsers)
 		})
 	})
 	return r
