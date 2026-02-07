@@ -3,9 +3,9 @@ package config
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/nexus-planet/nexus-planet-api/internal/db"
 	flag "github.com/spf13/pflag"
 )
@@ -19,7 +19,6 @@ var (
 	CustomDataSourceName   = ""
 	CustomServerPort       = 0
 	CustomDatabase         = ""
-	AppStatus              = "alpha"
 )
 
 type Config struct {
@@ -70,9 +69,8 @@ func LoadArgs() {
 	flag.StringVar(&CustomDataSourceName, "dsn", "", "Changes the default database data source name")
 	flag.BoolP("default", "d", false, "Use default options from environment variables of system i.e:\nDATA_SOURCE_NAME=<dsn>\nJWT_SECRET=<secret>")
 	flag.Usage = func() {
-		fmt.Printf("%s - %s\n", filepath.Base(os.Args[0]), AppStatus)
 		fmt.Println("Usage:")
-		fmt.Println("You need to setup environment variables for JWT_SECRET regardless if you are using default or custom options")
+		fmt.Printf("%s", color.RedString("NOTE:You need to setup environment variables for JWT_SECRET regardless if you are using default or custom options"))
 		flag.PrintDefaults()
 	}
 	flag.Parse()
