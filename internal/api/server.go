@@ -22,12 +22,13 @@ func NewServer(cfg *config.Config) *Server {
 }
 
 func (s *Server) StartServer(r chi.Router) {
+	fmt.Printf("Server listening on port %d...\n", s.port)
+
 	chi.Walk(r, func(method, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
 		fmt.Printf("%s%s%s %s %s\n", color.HiGreenString("["), color.GreenString(method), color.HiGreenString("]"), color.CyanString(route), color.BlueString(strconv.Itoa(len(middlewares))))
 		return nil
 	})
 
-	fmt.Printf("Server listening on port %d...\n", s.port)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", s.port), r)
 	if err != nil {
 		log.Fatalf("ERROR:server failed to start %v\n", err)
