@@ -26,16 +26,14 @@ func main() {
 	}
 
 	// api v1
-	r := chi.NewRouter()
 	repo := auth.NewRepository(db)
 	svc := auth.NewService(repo)
 	handler := auth.NewHandler(svc)
-	r.Mount("/api/v1", AuthRoutes(handler))
 
 	// possible v2 ??
 
-	server := api.NewServer(&cfg)
-	server.StartServer(r)
+	server := api.NewServer(AuthRoutes(handler), &cfg)
+	server.StartServer()
 }
 
 func AuthRoutes(handler *auth.Handler) *chi.Mux {
