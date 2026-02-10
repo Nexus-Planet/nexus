@@ -6,7 +6,7 @@ import (
 	"github.com/bytedance/sonic"
 )
 
-func JSON(w http.ResponseWriter, status int, v any) error {
+func JSON(w http.ResponseWriter, status int, v interface{}) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	err := sonic.ConfigDefault.NewEncoder(w).Encode(v)
