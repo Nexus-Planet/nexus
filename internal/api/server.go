@@ -1,15 +1,11 @@
 package api
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 
-	"github.com/bytedance/sonic"
 	"github.com/fatih/color"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -21,23 +17,26 @@ type Server struct {
 	port   int
 	root   *chi.Mux
 	routes *chi.Mux
-	logger *string
+	logger *zap.Logger
 }
 
 func NewServer(routes *chi.Mux, cfg *config.Config) *Server {
 	router := chi.NewRouter()
-	logger := "zap"
+
+	l, _ := zap.NewProduction()
 
 	return &Server{
 		port:   cfg.ServerPort,
 		root:   router,
-		logger: &logger,
+		logger: l,
 		routes: routes,
 	}
 }
 
 func (s *Server) StartServer() {
 	s.MountRoutes()
+	s.MountMiddlewares()
+	defer s.logger.Sync()
 
 	fmt.Printf(color.GreenString("Server listening on port %s...\n"), color.YellowString(strconv.Itoa(s.port)))
 
@@ -62,51 +61,25 @@ func (s *Server) MountMiddlewares() {
 }
 
 func (s *Server) Logger(next http.Handler) http.Handler {
-	emptyHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	if s.logger == nil {
-		return emptyHandler
-	}
-	switch *s.logger {
-	case "zap":
-		return s.ZapLogger(next)
-	default:
-		fmt.Fprintf(os.Stderr, "ERROR:%s logger not supported", *s.logger)
-	}
-
-	return emptyHandler
-}
-
-func (s *Server) DefaultLogger(next http.Handler) http.Handler {
-	return middleware.Logger(next)
+	return s.ZapLogger(next)
 }
 
 func (s *Server) ZapLogger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		wr := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
 
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, "Failed to read request body", http.StatusBadRequest)
-		}
-		r.Body = io.NopCloser(bytes.NewBuffer(body))
+		next.ServeHTTP(w, r)
 
-		var payload interface{}
-		err = sonic.Unmarshal(body, payload)
-		if err != nil {
-			payload = string(body)
-		}
-
-		logger, _ := zap.NewProduction()
-		defer logger.Sync()
-		logger.Info("Request Info",
+		reqLogger := s.logger.With(
+			zap.String("protocol", r.Proto),
 			zap.String("method", r.Method),
-			zap.String("route", r.URL.Path),
+			zap.String("path", r.URL.Path),
+			zap.String("id", middleware.GetReqID(r.Context())),
 			zap.String("host", r.Host),
 			zap.String("user_agent", r.UserAgent()),
-			zap.String("protocol", r.Proto),
-			zap.String("response_status", r.Response.Status),
-			zap.Int("response_status_code", r.Response.StatusCode),
-			zap.Any("request_body", payload),
+			zap.Int("status", wr.Status()),
+			zap.Int("size", wr.BytesWritten()),
 		)
-		next.ServeHTTP(w, r)
+		reqLogger.Info("Request Info")
 	})
 }

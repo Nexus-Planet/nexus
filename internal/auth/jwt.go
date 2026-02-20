@@ -22,7 +22,7 @@ func init() {
 func MakeToken(data ...string) string {
 	_, tokenString, err := JwtToken.Encode(map[string]interface{}{"email": data[0], "expirationDate": time.Now().Add(config.JwtTokenExpirationDate)})
 	if err != nil {
-		fmt.Println("ERROR: FAILED TO MAKE TOKEN")
+		fmt.Fprintf(os.Stderr, "ERROR: FAILED TO MAKE TOKEN")
 		return ""
 	}
 
