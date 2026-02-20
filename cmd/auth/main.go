@@ -32,11 +32,15 @@ func main() {
 
 	// possible v2 ??
 
-	server := api.NewServer(AuthRoutes(handler), &cfg)
+	server := api.NewServer(&cfg)
+	server.MountMiddlewares()
+	server.MountRoutes("/api", func(r chi.Router) {
+		authRouter(handler)
+	})
 	server.StartServer()
 }
 
-func AuthRoutes(handler *auth.Handler) *chi.Mux {
+func authRouter(handler *auth.Handler) *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Route("/auth", func(r chi.Router) {

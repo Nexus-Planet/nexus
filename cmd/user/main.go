@@ -32,11 +32,15 @@ func main() {
 	svc := user.NewService(repo)
 	handler := user.NewHandler(svc)
 
-	server := api.NewServer(UserRoutes(handler), &cfg)
+	server := api.NewServer(&cfg)
+	server.MountMiddlewares()
+	server.MountRoutes("/api", func(r chi.Router) {
+		userRouter(handler)
+	})
 	server.StartServer()
 }
 
-func UserRoutes(handler *user.Handler) *chi.Mux {
+func userRouter(handler *user.Handler) *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Route("/users", func(r chi.Router) {

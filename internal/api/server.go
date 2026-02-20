@@ -15,12 +15,11 @@ import (
 
 type Server struct {
 	port   int
-	root   *chi.Mux
-	routes *chi.Mux
+	root   chi.Router
 	logger *zap.Logger
 }
 
-func NewServer(routes *chi.Mux, cfg *config.Config) *Server {
+func NewServer(cfg *config.Config) *Server {
 	router := chi.NewRouter()
 
 	l, _ := zap.NewProduction()
@@ -29,13 +28,10 @@ func NewServer(routes *chi.Mux, cfg *config.Config) *Server {
 		port:   cfg.ServerPort,
 		root:   router,
 		logger: l,
-		routes: routes,
 	}
 }
 
 func (s *Server) StartServer() {
-	s.MountRoutes()
-	s.MountMiddlewares()
 	defer s.logger.Sync()
 
 	fmt.Printf(color.GreenString("Server listening on port %s...\n"), color.YellowString(strconv.Itoa(s.port)))
@@ -51,8 +47,10 @@ func (s *Server) StartServer() {
 	}
 }
 
-func (s *Server) MountRoutes() {
-	s.root.Mount("/api", s.routes)
+func (s *Server) MountRoutes(prefix string, mount func(r chi.Router)) {
+	apiRouter := chi.NewRouter()
+	mount(apiRouter)
+	s.root.Mount(prefix, apiRouter)
 }
 
 func (s *Server) MountMiddlewares() {
