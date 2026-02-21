@@ -21,7 +21,6 @@ func (h *Handler) Handler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to establish connection to the socket", http.StatusBadRequest)
 		return
 	}
-	defer conn.Close()
 
 	go h.svc.StartHub()
 	client := NewClient(conn, h.svc)
