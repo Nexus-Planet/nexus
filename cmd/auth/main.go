@@ -35,13 +35,12 @@ func main() {
 	server := api.NewServer(&cfg)
 	server.MountMiddlewares()
 	server.MountRoutes("/api", func(r chi.Router) {
-		authRouter(handler)
+		authRouter(r, handler)
 	})
 	server.StartServer()
 }
 
-func authRouter(handler *auth.Handler) *chi.Mux {
-	r := chi.NewRouter()
+func authRouter(r chi.Router, handler *auth.Handler) chi.Router {
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
@@ -57,5 +56,6 @@ func authRouter(handler *auth.Handler) *chi.Mux {
 			r.Post("/logout", handler.Logout)
 		})
 	})
+
 	return r
 }

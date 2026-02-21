@@ -35,14 +35,12 @@ func main() {
 	server := api.NewServer(&cfg)
 	server.MountMiddlewares()
 	server.MountRoutes("/api", func(r chi.Router) {
-		userRouter(handler)
+		userRouter(r, handler)
 	})
 	server.StartServer()
 }
 
-func userRouter(handler *user.Handler) *chi.Mux {
-	r := chi.NewRouter()
-
+func userRouter(r chi.Router, handler *user.Handler) chi.Router {
 	r.Route("/users", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(jwtauth.Verifier(auth.JwtToken))
@@ -53,5 +51,6 @@ func userRouter(handler *user.Handler) *chi.Mux {
 			r.Get("/", handler.FindAllUsers)
 		})
 	})
+
 	return r
 }
