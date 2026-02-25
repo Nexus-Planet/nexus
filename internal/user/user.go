@@ -2,10 +2,10 @@ package user
 
 import (
 	"database/sql"
+	"image"
 	"time"
 
-	"github.com/nexus-planet/nexus-planet-api/internal/guild"
-	"github.com/nexus-planet/nexus-planet-api/internal/media/image"
+	"github.com/nexus-planet/nexus/internal/guild"
 )
 
 type User struct {

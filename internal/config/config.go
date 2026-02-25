@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/nexus-planet/nexus-planet-api/internal/db"
+	"github.com/nexus-planet/nexus/internal/db"
 	flag "github.com/spf13/pflag"
 )
 

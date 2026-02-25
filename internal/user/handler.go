@@ -5,7 +5,7 @@ import (
 
 	"github.com/bytedance/sonic"
 	"github.com/go-chi/chi/v5"
-	"github.com/nexus-planet/nexus-planet-api/internal/api"
+	"github.com/nexus-planet/nexus/internal/api"
 )
 
 type Handler struct {

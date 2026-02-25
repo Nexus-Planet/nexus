@@ -9,7 +9,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/nexus-planet/nexus-planet-api/internal/config"
+	"github.com/nexus-planet/nexus/internal/config"
 	"go.uber.org/zap"
 )
 

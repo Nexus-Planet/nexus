@@ -25,8 +25,10 @@ CREATE TABLE guilds (
   id VARCHAR(36) PRIMARY KEY,
   guild_name VARCHAR(255) NOT NULL,
   invite_link VARCHAR(255)
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
--- User Guilds joined table
+-- Users Guilds joined table
 CREATE TABLE user_guilds (
   user_id VARCHAR(36) NOT NULL,
   guild_id VARCHAR(36) NOT NULL,
@@ -39,6 +41,39 @@ CREATE TABLE user_guilds (
 -- Messages table
 CREATE TABLE messages (
   id VARCHAR(36) PRIMARY KEY,
-  content TEXT NOT NULL
+  content TEXT NOT NULL,
+  type VARCHAR(20) NOT NULL
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
--- Media table
+-- Attachments table
+CREATE TABLE attachments (
+    id VARCHAR(36) PRIMARY KEY,
+    type VARCHAR(20) NOT NULL,
+    url TEXT NOT NULL,
+    name VARCHAR(255),
+    size BIGINT,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+);
+-- Messages Attachments joined table
+CREATE TABLE message_attachments (
+    id VARCHAR(36) PRIMARY KEY,
+    message_id VARCHAR(36) NOT NULL,
+    attachment_id VARCHAR(36) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    deleted_after INTEGER DEFAULT 30,
+    FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE,
+    FOREIGN KEY (attachment_id) REFERENCES attachments(id) ON DELETE CASCADE
+);
+-- Messages Guilds joined table
+CREATE TABLE message_guilds (
+    id VARCHAR(36) PRIMARY KEY,
+    message_id VARCHAR(36) NOT NULL,
+    guild_id VARCHAR(36) NOT NULL,
+    is_pinned INTEGER DEFAULT 0,
+    FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE,
+    FOREIGN KEY (guild_id) REFERENCES guilds(id) ON DELETE CASCADE
+);

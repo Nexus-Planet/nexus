@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/nexus-planet/nexus-planet-api/internal/db"
+	"github.com/nexus-planet/nexus/internal/db"
 )
 
 type Service struct {

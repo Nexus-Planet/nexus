@@ -8,10 +8,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
-	"github.com/nexus-planet/nexus-planet-api/internal/api"
-	"github.com/nexus-planet/nexus-planet-api/internal/auth"
-	"github.com/nexus-planet/nexus-planet-api/internal/config"
-	"github.com/nexus-planet/nexus-planet-api/internal/db"
+	"github.com/nexus-planet/nexus/internal/api"
+	"github.com/nexus-planet/nexus/internal/auth"
+	"github.com/nexus-planet/nexus/internal/config"
+	"github.com/nexus-planet/nexus/internal/db"
 )
 
 func main() {

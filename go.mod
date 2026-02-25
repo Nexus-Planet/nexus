@@ -1,4 +1,4 @@
-module github.com/nexus-planet/nexus-planet-api
+module github.com/nexus-planet/nexus
 
 go 1.24.6
 

@@ -12,7 +12,7 @@ WHERE id = $1;
 SELECT *
 FROM users
 ORDER BY created_at DESC;
--- Update User Date
+-- Update User Data
 -- name: UpdateUser :exec
 UPDATE users
 SET display_name = COALESCE($2, display_name),

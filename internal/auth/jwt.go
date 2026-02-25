@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/go-chi/jwtauth/v5"
-	"github.com/nexus-planet/nexus-planet-api/internal/config"
+	"github.com/nexus-planet/nexus/internal/config"
 )
 
 var (
