@@ -47,8 +47,8 @@ func userRouter(r chi.Router, handler *user.Handler) chi.Router {
 			r.Use(jwtauth.Authenticator(auth.JwtToken))
 
 			r.Post("/", handler.CreateUser)
-			r.Get("/{id}", handler.FindOneUser)
-			r.Get("/", handler.FindAllUsers)
+			r.Get("/{id}", handler.FindOne)
+			r.Get("/", handler.FindAll)
 		})
 	})
 

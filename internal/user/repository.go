@@ -101,7 +101,7 @@ func (r *Repository) SetUsername(ctx context.Context, params *SetUsernameParams)
 	return user, nil
 }
 
-func (r *Repository) UpdateUserData(ctx context.Context, params *UpdateUserParams) (*UserDB, error) {
+func (r *Repository) UpdateData(ctx context.Context, params *UpdateUserParams) (*UserDB, error) {
 	q := `
  	UPDATE users
 	SET display_name = COALESCE(?, display_name),
@@ -124,7 +124,7 @@ func (r *Repository) UpdateUserData(ctx context.Context, params *UpdateUserParam
 	return user, nil
 }
 
-func (r *Repository) SoftDeleteUser(ctx context.Context, id string) error {
+func (r *Repository) SoftDelete(ctx context.Context, id string) error {
 	q := `
 	UPDATE users
 	SET status = 'pending_delete',
@@ -142,7 +142,7 @@ func (r *Repository) SoftDeleteUser(ctx context.Context, id string) error {
 	return nil
 }
 
-func (r *Repository) DeactivateUser(ctx context.Context, id string) error {
+func (r *Repository) Deactivate(ctx context.Context, id string) error {
 	q := `
 	UPDATE users
 	SET account_status = 'deactivated'
@@ -158,7 +158,7 @@ func (r *Repository) DeactivateUser(ctx context.Context, id string) error {
 
 	return nil
 }
-func (r *Repository) ReactivateUser(ctx context.Context, id string) error {
+func (r *Repository) Reactivate(ctx context.Context, id string) error {
 	q := `
 	UPDATE Users
 	SET account_status = 'active'

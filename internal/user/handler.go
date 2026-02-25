@@ -31,18 +31,18 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	api.JSON(w, http.StatusCreated, user)
 }
 
-func (h *Handler) FindOneUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) FindOne(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
-	user, err := h.svc.FindOneUser(r.Context(), id)
+	user, err := h.svc.FindOne(r.Context(), id)
 	if err != nil {
 		http.Error(w, "", http.StatusNotFound)
 	}
 	api.JSON(w, http.StatusOK, user)
 }
 
-func (h *Handler) FindAllUsers(w http.ResponseWriter, r *http.Request) {
-	users, err := h.svc.FindAllUsers(r.Context())
+func (h *Handler) FindAll(w http.ResponseWriter, r *http.Request) {
+	users, err := h.svc.FindAll(r.Context())
 	if err != nil {
 		http.Error(w, "", http.StatusNotFound)
 	}
@@ -50,14 +50,14 @@ func (h *Handler) FindAllUsers(w http.ResponseWriter, r *http.Request) {
 	api.JSON(w, http.StatusOK, users)
 }
 
-func (h *Handler) SoftDeleteUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) SoftDelete(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *Handler) DeactivateUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Deactivate(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *Handler) ReactivateUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Reactivate(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }

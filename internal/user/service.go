@@ -24,7 +24,7 @@ func (svc *Service) CreateUser(ctx context.Context, data UserCredentials) (*User
 	return user.ToUser(), nil
 }
 
-func (svc *Service) FindOneUser(ctx context.Context, id string) (*User, error) {
+func (svc *Service) FindOne(ctx context.Context, id string) (*User, error) {
 	user, err := svc.repo.FindOne(ctx, id)
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func (svc *Service) FindOneUser(ctx context.Context, id string) (*User, error) {
 	return user.ToUser(), nil
 }
 
-func (svc *Service) FindAllUsers(ctx context.Context) ([]*User, error) {
+func (svc *Service) FindAll(ctx context.Context) ([]*User, error) {
 	userDBs, err := svc.repo.FindAll(ctx)
 	if err != nil {
 		return nil, err
@@ -58,9 +58,9 @@ func (svc *Service) SetUsername(ctx context.Context, data *SetUsernameCredential
 	return user.ToUser(), nil
 }
 
-func (svc *Service) UpdateUserData(ctx context.Context, data *UpdateUserCredentials) (*User, error) {
+func (svc *Service) UpdateData(ctx context.Context, data *UpdateUserCredentials) (*User, error) {
 
-	user, err := svc.repo.UpdateUserData(ctx, &UpdateUserParams{ID: *data.ID, DisplayName: *db.ToNullString(data.DisplayName)})
+	user, err := svc.repo.UpdateData(ctx, &UpdateUserParams{ID: *data.ID, DisplayName: *db.ToNullString(data.DisplayName)})
 	if err != nil {
 		return nil, err
 	}
@@ -68,16 +68,16 @@ func (svc *Service) UpdateUserData(ctx context.Context, data *UpdateUserCredenti
 	return user.ToUser(), nil
 }
 
-func (svc *Service) SoftDeleteUser(ctx context.Context, id string) error {
-	err := svc.repo.SoftDeleteUser(ctx, id)
+func (svc *Service) SoftDelete(ctx context.Context, id string) error {
+	err := svc.repo.SoftDelete(ctx, id)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (svc *Service) DeactivateUser(ctx context.Context, id string) error {
-	err := svc.repo.DeactivateUser(ctx, id)
+func (svc *Service) Deactivate(ctx context.Context, id string) error {
+	err := svc.repo.Deactivate(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func (svc *Service) DeactivateUser(ctx context.Context, id string) error {
 }
 
 func (svc *Service) Reactivate(ctx context.Context, id string) error {
-	err := svc.repo.ReactivateUser(ctx, id)
+	err := svc.repo.Reactivate(ctx, id)
 	if err != nil {
 		return err
 	}

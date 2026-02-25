@@ -71,7 +71,7 @@ func (r *Repository) FindOneByEmail(ctx context.Context, email string) (*AuthSes
 	return &session, nil
 }
 
-func (r *Repository) FindAllSessions(ctx context.Context) ([]*AuthSessionDB, error) {
+func (r *Repository) FindAll(ctx context.Context) ([]*AuthSessionDB, error) {
 	q := `
 	SELECT *
 	FROM auth_sessions
