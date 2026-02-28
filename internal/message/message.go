@@ -3,10 +3,10 @@ package message
 import "github.com/nexus-planet/nexus/internal/attachment"
 
 type Message struct {
-	ID          string                   `json:"id"`
-	Content     string                   `json:"content"`
-	Type        string                   `json:"type"`
-	Attachments []*attachment.Attachment `json:"attachments"`
+	ID          string                  `json:"id"`
+	Content     string                  `json:"content"`
+	Type        string                  `json:"type"`
+	Attachments []attachment.Attachment `json:"attachments"`
 }
 
 type UpdateMessage struct {
@@ -15,17 +15,17 @@ type UpdateMessage struct {
 }
 
 type MessageDB struct {
-	ID          string                   `db:"id"`
-	Content     string                   `db:"content"`
-	Type        string                   `db:"type"`
-	Attachments []*attachment.Attachment `db:"attachments"`
+	ID          string                  `db:"id"`
+	Content     string                  `db:"content"`
+	Type        string                  `db:"type"`
+	Attachments []attachment.Attachment `db:"attachments"`
 }
 
 type CreateMessageParams struct {
-	ID          string                   `db:"id"`
-	Content     string                   `db:"content"`
-	Type        string                   `db:"type"`
-	Attachments []*attachment.Attachment `db:"attachments"`
+	ID          string                  `db:"id"`
+	Content     string                  `db:"content"`
+	Type        string                  `db:"type"`
+	Attachments []attachment.Attachment `db:"attachments"`
 }
 
 type UpdateMessageParams struct {

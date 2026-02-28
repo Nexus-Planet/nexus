@@ -33,17 +33,15 @@ func (svc *Service) FindOne(ctx context.Context, id string) (*Message, error) {
 	return msg.ToMessage(), nil
 }
 
-func (svc *Service) FindAll(ctx context.Context) ([]*Message, error) {
+func (svc *Service) FindAll(ctx context.Context) ([]Message, error) {
 	msgsDB, err := svc.repo.FindAll(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	msgs := make([]*Message, len(msgsDB))
+	msgs := make([]Message, len(msgsDB))
 	for i, msg := range msgsDB {
-		if msg != nil {
-			msgs[i] = msg.ToMessage()
-		}
+		msgs[i] = *msg.ToMessage()
 	}
 
 	return msgs, nil

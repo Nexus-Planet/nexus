@@ -51,7 +51,7 @@ func (r *Repository) FindOne(ctx context.Context, id string) (*MessageDB, error)
 	return &msg, nil
 }
 
-func (r *Repository) FindAll(ctx context.Context) ([]*MessageDB, error) {
+func (r *Repository) FindAll(ctx context.Context) ([]MessageDB, error) {
 	q := `
 	SELECT *
 	FROM messages
@@ -60,7 +60,7 @@ func (r *Repository) FindAll(ctx context.Context) ([]*MessageDB, error) {
 
 	q = r.db.Rebind(q)
 
-	var msgs []*MessageDB
+	var msgs []MessageDB
 	err := r.db.GetContext(ctx, &msgs, q)
 	if err != nil {
 		return nil, err

@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -43,7 +42,7 @@ func (s *Server) StartServer() {
 
 	err := http.ListenAndServe(fmt.Sprintf(":%d", s.port), s.root)
 	if err != nil {
-		log.Fatalf("ERROR:server failed to start %v\n", err)
+		s.logger.Sugar().Fatalf("ERROR:server failed to start %v\n", err)
 	}
 }
 

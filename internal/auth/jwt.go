@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-chi/jwtauth/v5"
+	"github.com/nexus-planet/nexus/internal/api"
 	"github.com/nexus-planet/nexus/internal/config"
 )
 
@@ -20,7 +21,7 @@ func init() {
 }
 
 func MakeToken(data ...string) string {
-	_, tokenString, err := JwtToken.Encode(map[string]interface{}{"email": data[0], "expirationDate": time.Now().Add(config.JwtTokenExpirationDate)})
+	_, tokenString, err := JwtToken.Encode(api.M{"email": data[0], "expirationDate": time.Now().Add(config.JwtTokenExpirationDate)})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: FAILED TO MAKE TOKEN")
 		return ""

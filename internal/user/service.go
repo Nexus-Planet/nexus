@@ -33,17 +33,15 @@ func (svc *Service) FindOne(ctx context.Context, id string) (*User, error) {
 	return user.ToUser(), nil
 }
 
-func (svc *Service) FindAll(ctx context.Context) ([]*User, error) {
+func (svc *Service) FindAll(ctx context.Context) ([]User, error) {
 	userDBs, err := svc.repo.FindAll(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	users := make([]*User, len(userDBs))
+	users := make([]User, len(userDBs))
 	for i, user := range userDBs {
-		if user != nil {
-			users[i] = user.ToUser()
-		}
+		users[i] = *user.ToUser()
 	}
 
 	return users, nil

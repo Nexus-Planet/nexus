@@ -6,6 +6,9 @@ import (
 	"github.com/bytedance/sonic"
 )
 
+// M is an alias for a map structure for http response
+type M map[string]interface{}
+
 func JSON(w http.ResponseWriter, status int, v interface{}) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)

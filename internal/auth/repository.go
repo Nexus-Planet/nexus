@@ -71,7 +71,7 @@ func (r *Repository) FindOneByEmail(ctx context.Context, email string) (*AuthSes
 	return &session, nil
 }
 
-func (r *Repository) FindAll(ctx context.Context) ([]*AuthSessionDB, error) {
+func (r *Repository) FindAll(ctx context.Context) ([]AuthSessionDB, error) {
 	q := `
 	SELECT *
 	FROM auth_sessions
@@ -80,7 +80,7 @@ func (r *Repository) FindAll(ctx context.Context) ([]*AuthSessionDB, error) {
 
 	q = r.db.Rebind(q)
 
-	var sessions []*AuthSessionDB
+	var sessions []AuthSessionDB
 	err := r.db.SelectContext(ctx, &sessions, q)
 	if err != nil {
 		return nil, err

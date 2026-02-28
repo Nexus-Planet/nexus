@@ -56,7 +56,7 @@ func (r *Repository) FindOne(ctx context.Context, id string) (*UserDB, error) {
 }
 
 // Query to fetch all users
-func (r *Repository) FindAll(ctx context.Context) ([]*UserDB, error) {
+func (r *Repository) FindAll(ctx context.Context) ([]UserDB, error) {
 	q := `
 	SELECT *
 	FROM users
@@ -65,7 +65,7 @@ func (r *Repository) FindAll(ctx context.Context) ([]*UserDB, error) {
 
 	q = r.db.Rebind(q)
 
-	var users []*UserDB
+	var users []UserDB
 	err := r.db.SelectContext(ctx, &users, q)
 	if err != nil {
 		return nil, err
