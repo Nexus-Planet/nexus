@@ -1,4 +1,4 @@
-# The backend for nexus planet consisting of multiple microservices
+# The backend for nexus planet
 
 ## Requirements
 
