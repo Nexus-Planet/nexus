@@ -8,7 +8,7 @@ To build nexus planet backend services you will need the following:
 
 Recommended but optional:
 
-- make and gcc
+- make
 - A PostgreSQL database engine
 - reverse proxy such as nginx
 
