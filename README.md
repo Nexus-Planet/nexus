@@ -1,4 +1,6 @@
-# The backend for nexus planet
+# Nexus Planet Backend (Work in Progress)
+
+⚠️ **This project is a work in progress. APIs and features may change frequently.**
 
 ## Requirements
 
